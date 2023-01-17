@@ -1,4 +1,7 @@
 #!/bin/bash
+# AUTO CLUB ENTERPRISE for RedHat 8
+# version 1.0 - Jan2023
+
 AUDITDIR="/tmp/$(hostname -s)_audit"
 TIME="$(date +%F_%T)"
 . /etc/os-release
