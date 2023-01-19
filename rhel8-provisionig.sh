@@ -232,7 +232,7 @@ for i in \
 "LogLevel INFO" \
 "Protocol 2" \
 "X11Forwarding no" \
-"MaxAuthTries 4" \
+"MaxAuthTries 6" \
 "IgnoreRhosts yes" \
 "HostbasedAuthentication no" \
 "PermitRootLogin no" \
@@ -243,7 +243,7 @@ for i in \
 "LoginGraceTime 60" \
 "UsePAM yes" \
 "MaxStartups 10:30:60" \
-"AllowTcpForwarding no" \
+"AllowTcpForwarding yes" \
 "Ciphers aes128-ctr,aes192-ctr,aes256-ctr" \
 ; do
   [[ `egrep -q "^${i}" /etc/ssh/sshd_config` ]] && continue
@@ -273,8 +273,9 @@ useradd -D -f 30
 
 echo "Set login.defs..."
 for i in \
-"PASS_MAX_DAYS 90" \
-"PASS_MIN_DAYS 7" \
+"PASS_MAX_DAYS 99999" \
+"PASS_MIN_DAYS 0" \
+"PASS_MIN_LEN 8"
 "PASS_WARN_AGE 7" \
 ; do
   [[ `egrep "^${i}" /etc/login.defs` ]] && continue
@@ -502,7 +503,7 @@ done
 
 echo "Checking That Reserved UIDs Are Assigned to System Accounts..."
 
-defUsers="root bin daemon adm lp sync shutdown halt mail news uucp operator games
+defUsers="root scom carklogon cyberark gid00653 bin daemon adm lp sync shutdown halt mail news uucp operator games
 gopher ftp nobody nscd vcsa rpc mailnull smmsp pcap ntp dbus avahi sshd rpcuser
 nfsnobody haldaemon avahi-autoipd distcache apache oprofile webalizer dovecot squid
 named xfs gdm sabayon usbmuxd rtkit abrt saslauth pulse postfix tcpdump"
@@ -620,6 +621,14 @@ sed -i "${line_num} a auth		required	pam_wheel.so use_uid" ${pam_su}
 
 echo "Add root to group wheel..."
 gpasswd -a root wheel >/dev/null
+
+echo "*** Stopping and disabling Firewalld ***"
+systemctl stop firewalld && systemctl disable firewalld 
+echo "*** Firewalld: Disabled ***"
+
+echo "*** Disabling SELinux ***"
+sed -i -e 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+echo "*** SELinux: Disabled ***"
 
 echo ""
 echo "Hardening for RHEL8 has been Completed"
